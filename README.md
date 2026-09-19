@@ -153,3 +153,7 @@ The project uses GitHub Actions for a robust CI/CD workflow (`.github/workflows/
 ## License
 
 MIT License. See `LICENSE` for details.
+
+
+## LSM Compaction
+- WAF < 5.0 under random writes
