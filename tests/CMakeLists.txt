@@ -14,6 +14,7 @@ enable_testing()
 # --- Unit Tests ---
 add_executable(unit_tests
     unit/test_map.cpp
+    unit/test_compaction.cpp
 )
 
 target_link_libraries(unit_tests
