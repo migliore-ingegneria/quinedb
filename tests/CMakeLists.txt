@@ -15,6 +15,7 @@ enable_testing()
 add_executable(unit_tests
     unit/test_map.cpp
     unit/test_compaction.cpp
+    unit/test_bloom_filter.cpp
 )
 
 target_link_libraries(unit_tests
