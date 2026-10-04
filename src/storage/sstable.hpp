@@ -3,7 +3,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <vector>
+
+#include "bloom_filter.hpp"
 
 namespace quine {
 namespace storage {
@@ -24,6 +27,14 @@ struct SSTableMetaData {
   std::string max_key;
   int64_t created_at = 0;
   std::vector<SSTableRecord> records;
+  BloomFilter bloom_filter;
+
+  /// @brief Fast check if key may exist in this SSTable.
+  bool may_contain(std::string_view key) const {
+    if (records.empty()) return false;
+    if (key < min_key || key > max_key) return false;
+    return bloom_filter.contains(key);
+  }
 
   void calculate_bounds() {
     if (records.empty()) {
@@ -31,16 +42,19 @@ struct SSTableMetaData {
       max_key.clear();
       file_size = 0;
       record_count = 0;
+      bloom_filter.clear();
       return;
     }
     record_count = records.size();
     min_key = records.front().key;
     max_key = records.front().key;
+    bloom_filter = BloomFilter(record_count, 0.01);
     size_t total_bytes = 0;
     for (const auto& r : records) {
       if (r.key < min_key) min_key = r.key;
       if (r.key > max_key) max_key = r.key;
       total_bytes += r.key.size() + r.value.size() + sizeof(SSTableRecord);
+      bloom_filter.add(r.key);
     }
     file_size = total_bytes;
   }
